@@ -1,0 +1,18 @@
+security:
+    password_hashers:
+        App\User\Entity\User: 'auto'
+
+    providers:
+        api_token_provider:
+            id: App\Auth\Security\UserProvider
+
+    firewalls:
+        api:
+            pattern: ^/api
+            stateless: true
+            custom_authenticators:
+                - App\Auth\Security\ApiTokenAuthenticator
+
+    access_control:
+        - { path: ^/api/v1/login, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }

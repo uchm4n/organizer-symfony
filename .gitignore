@@ -12,3 +12,8 @@
 .fresh/
 .DS_Store
 /docs/
+
+###> phpunit/phpunit ###
+/phpunit.xml
+/.phpunit.cache/
+###< phpunit/phpunit ###
