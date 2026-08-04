@@ -13,10 +13,11 @@ POST {{baseUrl}}/api/v1/login
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-email={{seededEmail}}&password={{seededPassword}}
+email = {{seededEmail}} &
+password = {{seededPassword}}
 
 > {%
-client.global.set("seededToken", response.body.access_token);
+    client.global.set("seededToken", response.body.access_token);
 %}
 
 ### Get current user
@@ -35,7 +36,7 @@ Authorization: Bearer {{seededToken}}
 X-API-Version: {{apiVersion}}
 
 > {%
-client.global.set("seededWorkspaceId", response.body.id);
+    client.global.set("seededWorkspaceId", response.body.id);
 %}
 
 ### Show seeded workspace by id
@@ -49,9 +50,9 @@ Authorization: Bearer {{seededToken}}
 X-API-Version: {{apiVersion}}
 
 > {%
-if (response.body.data.length > 0) {
-  client.global.set("seededItemId", response.body.data[0].id);
-}
+    if (response.body.data.length > 0) {
+        client.global.set("seededItemId", response.body.data[0].id);
+    }
 %}
 
 ### List current user items
@@ -70,10 +71,14 @@ Authorization: Bearer {{seededToken}}
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-workspace_id={{seededWorkspaceId}}&type=1&title=HTTP Client Note&data[content]=Created from API.http&sort_order=99
+workspace_id = {{seededWorkspaceId}} &
+type = 1 &
+title = HTTP Client Note &
+data[content] = Created from API.http &
+sort_order = 99
 
 > {%
-client.global.set("createdItemId", response.body.id);
+    client.global.set("createdItemId", response.body.id);
 %}
 
 ### Update created item
@@ -82,7 +87,9 @@ Authorization: Bearer {{seededToken}}
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-title=HTTP Client Note Updated&data[content]=Updated from API.http&sort_order=100
+title = HTTP Client Note Updated &
+data[content] = Updated from API.http &
+sort_order = 100
 
 ### Delete created item
 DELETE {{baseUrl}}/api/v1/items/{{createdItemId}}
@@ -94,10 +101,11 @@ POST {{baseUrl}}/api/v1/login
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-email={{freshEmail}}&password={{freshPassword}}
+email = {{freshEmail}} &
+password = {{freshPassword}}
 
 > {%
-client.global.set("freshToken", response.body.access_token);
+    client.global.set("freshToken", response.body.access_token);
 %}
 
 ### Create workspace for fresh user
@@ -106,10 +114,13 @@ Authorization: Bearer {{freshToken}}
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-name=Fresh Workspace&settings[theme]=dark&settings[language]=en&settings[timezone]=UTC
+name = Fresh Workspace &
+settings[theme] = dark &
+settings[language] = en &
+settings[timezone] = UTC
 
 > {%
-client.global.set("freshWorkspaceId", response.body.id);
+    client.global.set("freshWorkspaceId", response.body.id);
 %}
 
 ### Get fresh current workspace
@@ -123,7 +134,10 @@ Authorization: Bearer {{freshToken}}
 Content-Type: application/x-www-form-urlencoded
 X-API-Version: {{apiVersion}}
 
-name=Fresh Workspace Updated&settings[theme]=light&settings[language]=en&settings[timezone]=Europe/Tbilisi
+name = Fresh Workspace Updated &
+settings[theme] = light &
+settings[language] = en &
+settings[timezone] = Europe/Tbilisi
 
 ### Show fresh workspace by id
 GET {{baseUrl}}/api/v1/workspaces/{{freshWorkspaceId}}
