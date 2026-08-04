@@ -9,6 +9,7 @@ use App\Item\Message\GetItem;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/items/{itemId}', name: 'api.v1.item.show', methods: ['GET'])]
@@ -20,7 +21,8 @@ final class ItemShowController extends AbstractController
 
     public function __invoke(int $itemId): JsonResponse
     {
-        $item = $this->queryBus->dispatch(new GetItem($itemId));
+        $envelope = $this->queryBus->dispatch(new GetItem($itemId));
+        $item = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(ItemData::fromEntity($item)->toArray());
     }

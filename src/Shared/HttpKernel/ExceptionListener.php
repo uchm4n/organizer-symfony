@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Shared\HttpKernel;
 
+use App\Shared\Exception\ResourceNotFoundException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -30,7 +31,7 @@ final class ExceptionListener implements EventSubscriberInterface
 
         if ($exception instanceof HandlerFailedException) {
             $wrapped = $exception->getWrappedExceptions();
-            $exception = $wrapped[0] ?? $exception;
+            $exception = array_values($wrapped)[0] ?? $exception;
         }
 
         $request = $event->getRequest();
@@ -55,6 +56,11 @@ final class ExceptionListener implements EventSubscriberInterface
                 403,
                 'Forbidden',
                 'Insufficient permissions.'
+            ),
+            $exception instanceof ResourceNotFoundException => ProblemRenderer::response(
+                404,
+                'Not Found',
+                $exception->getMessage()
             ),
             $exception instanceof NotFoundHttpException => ProblemRenderer::response(
                 404,

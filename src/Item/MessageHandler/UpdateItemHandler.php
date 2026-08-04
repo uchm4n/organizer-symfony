@@ -6,9 +6,9 @@ namespace App\Item\MessageHandler;
 
 use App\Item\Entity\Item;
 use App\Item\Message\UpdateItem;
+use App\Shared\Exception\ResourceNotFoundException;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageException;
 
 #[AsMessageHandler]
 final class UpdateItemHandler
@@ -23,7 +23,7 @@ final class UpdateItemHandler
             ->find($message->itemId);
 
         if ($item === null) {
-            throw new UnrecoverableMessageException('Item not found.');
+            throw ResourceNotFoundException::forResource('Item');
         }
 
         if ($message->title !== null) {

@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/items/{itemId}', name: 'api.v1.item.update', methods: ['PATCH'])]
@@ -30,7 +31,8 @@ final class ItemUpdateController extends AbstractController
             sortOrder: $request->request->has('sort_order') ? (int) $request->request->get('sort_order') : null,
         );
 
-        $item = $this->commandBus->dispatch($message);
+        $envelope = $this->commandBus->dispatch($message);
+        $item = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(ItemData::fromEntity($item)->toArray());
     }

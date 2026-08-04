@@ -9,6 +9,7 @@ use App\User\Message\GetUsers;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/users', name: 'api.v1.user.index', methods: ['GET'])]
@@ -20,7 +21,8 @@ final class UsersController extends AbstractController
 
     public function __invoke(): JsonResponse
     {
-        $collection = $this->queryBus->dispatch(new GetUsers());
+        $envelope = $this->queryBus->dispatch(new GetUsers());
+        $collection = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(UserCollectionData::fromPaginatedCollection($collection)->toArray());
     }

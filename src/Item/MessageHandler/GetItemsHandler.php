@@ -19,10 +19,10 @@ final class GetItemsHandler
 
     public function __invoke(GetItems $message): array
     {
-        $criteria = ['workspace' => $message->workspaceId];
-        if ($message->parentId !== null) {
-            $criteria['parent'] = $message->parentId;
-        }
+        $criteria = [
+            'workspace' => $message->workspaceId,
+            'parent' => $message->parentId,
+        ];
 
         return $this->em->getRepository(Item::class)
             ->findBy($criteria, ['sortOrder' => 'ASC']);

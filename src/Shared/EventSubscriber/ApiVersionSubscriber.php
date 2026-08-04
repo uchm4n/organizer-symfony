@@ -28,7 +28,8 @@ final class ApiVersionSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $version = $request->query->get('api_version', 'v1');
+        $version = $request->headers->get('X-API-Version')
+            ?? $request->query->get('api_version', 'v1');
 
         if (!in_array($version, self::SUPPORTED_VERSIONS, true)) {
             throw new UnsupportedApiVersionException($version, self::SUPPORTED_VERSIONS);

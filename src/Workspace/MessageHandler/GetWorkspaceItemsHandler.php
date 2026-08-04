@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace App\Workspace\MessageHandler;
 
 use App\Item\Entity\Item;
+use App\Shared\Exception\ResourceNotFoundException;
 use App\Workspace\Entity\Workspace;
 use App\Workspace\Message\GetWorkspaceItems;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageException;
 
 #[AsMessageHandler(bus: 'query.bus')]
 final class GetWorkspaceItemsHandler
@@ -24,7 +24,7 @@ final class GetWorkspaceItemsHandler
             ->find($message->workspaceId);
 
         if ($workspace === null) {
-            throw new UnrecoverableMessageException('Workspace not found.');
+            throw ResourceNotFoundException::forResource('Workspace');
         }
 
         return $this->em->getRepository(Item::class)

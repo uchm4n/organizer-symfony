@@ -27,6 +27,8 @@ final class CreateWorkspaceHandler
         $workspace->setName($message->name);
         $workspace->setSettings($message->settings);
 
+        $user->setWorkspace($workspace);
+
         $this->em->persist($workspace);
         $this->em->flush();
 

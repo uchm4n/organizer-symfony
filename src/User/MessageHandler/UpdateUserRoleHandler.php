@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\User\MessageHandler;
 
+use App\Shared\Exception\ResourceNotFoundException;
 use App\User\Entity\User;
 use App\User\Message\UpdateUserRole;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
-use Symfony\Component\Messenger\Exception\UnrecoverableMessageException;
 
 #[AsMessageHandler]
 final class UpdateUserRoleHandler
@@ -23,7 +23,7 @@ final class UpdateUserRoleHandler
             ->find($message->userId);
 
         if ($user === null) {
-            throw new UnrecoverableMessageException('User not found.');
+            throw ResourceNotFoundException::forResource('User');
         }
 
         $user->setRole($message->role);

@@ -118,6 +118,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->workspace;
     }
 
+    public function setWorkspace(?\App\Workspace\Entity\Workspace $workspace): static
+    {
+        $this->workspace = $workspace;
+        return $this;
+    }
+
     /** @return Collection<int, ApiToken> */
     public function getApiTokens(): Collection
     {

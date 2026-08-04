@@ -24,7 +24,7 @@ final readonly class ItemData
             id: $item->getId(),
             workspaceId: $item->getWorkspace()->getId(),
             parentId: $item->getParent()?->getId(),
-            type: $item->getType()->value,
+            type: (string)$item->getType()->value,
             title: $item->getTitle(),
             data: $item->getData(),
             sortOrder: $item->getSortOrder(),

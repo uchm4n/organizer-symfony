@@ -19,8 +19,7 @@ final class UserProvider implements UserProviderInterface
 
     public function loadUserByIdentifier(string $identifier): UserInterface
     {
-        $user = $this->em->getRepository(User::class)
-            ->findOneBy(['email' => $identifier]);
+        $user = $this->em->getRepository(User::class)->findOneBy(['email' => $identifier]);
 
         if ($user === null) {
             throw new UserNotFoundException();

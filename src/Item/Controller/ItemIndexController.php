@@ -9,6 +9,7 @@ use App\Item\Message\GetItems;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/items', name: 'api.v1.item.index', methods: ['GET'])]
@@ -28,7 +29,8 @@ final class ItemIndexController extends AbstractController
             return $this->json(['data' => []]);
         }
 
-        $items = $this->queryBus->dispatch(new GetItems($workspace->getId()));
+        $envelope = $this->queryBus->dispatch(new GetItems($workspace->getId()));
+        $items = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json([
             'data' => array_map(

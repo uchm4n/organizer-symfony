@@ -13,9 +13,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
-#[Route('/api/v1/workspace', name: 'api.v1.workspace.', methods: ['GET|POST|PATCH'])]
+#[Route('/api/v1/workspace', name: 'api.v1.workspace.')]
 final class WorkspaceController extends AbstractController
 {
     public function __construct(
@@ -29,7 +30,8 @@ final class WorkspaceController extends AbstractController
         /** @var \App\User\Entity\User $user */
         $user = $this->getUser();
 
-        $workspace = $this->queryBus->dispatch(new GetWorkspace($user->getId()));
+        $envelope = $this->queryBus->dispatch(new GetWorkspace($user->getId()));
+        $workspace = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(WorkspaceData::fromEntity($workspace)->toArray());
     }
@@ -40,11 +42,12 @@ final class WorkspaceController extends AbstractController
         /** @var \App\User\Entity\User $user */
         $user = $this->getUser();
 
-        $workspace = $this->commandBus->dispatch(new CreateWorkspace(
+        $envelope = $this->commandBus->dispatch(new CreateWorkspace(
             userId: $user->getId(),
             name: $request->request->get('name'),
             settings: $request->request->all('settings'),
         ));
+        $workspace = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(
             WorkspaceData::fromEntity($workspace)->toArray(),
@@ -58,13 +61,15 @@ final class WorkspaceController extends AbstractController
         /** @var \App\User\Entity\User $user */
         $user = $this->getUser();
 
-        $workspace = $this->queryBus->dispatch(new GetWorkspace($user->getId()));
+        $envelope = $this->queryBus->dispatch(new GetWorkspace($user->getId()));
+        $workspace = $envelope->last(HandledStamp::class)->getResult();
 
-        $workspace = $this->commandBus->dispatch(new UpdateWorkspace(
+        $envelope = $this->commandBus->dispatch(new UpdateWorkspace(
             workspaceId: $workspace->getId(),
             name: $request->request->get('name'),
             settings: $request->request->all('settings'),
         ));
+        $workspace = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(WorkspaceData::fromEntity($workspace)->toArray());
     }

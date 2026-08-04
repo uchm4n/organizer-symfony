@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\HandledStamp;
 use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/api/v1/items', name: 'api.v1.item.store', methods: ['POST'])]
@@ -32,7 +33,8 @@ final class ItemStoreController extends AbstractController
             sortOrder: (int) $request->request->get('sort_order', 0),
         );
 
-        $item = $this->commandBus->dispatch($message);
+        $envelope = $this->commandBus->dispatch($message);
+        $item = $envelope->last(HandledStamp::class)->getResult();
 
         return $this->json(
             ItemData::fromEntity($item)->toArray(),

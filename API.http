@@ -1,0 +1,131 @@
+@baseUrl = http://organizer-symfony.test/
+@apiVersion = v1
+
+@seededEmail = user@example.com
+@seededPassword = user123
+@freshEmail = fresh@example.com
+@freshPassword = fresh123
+
+# All write requests use application/x-www-form-urlencoded because controllers read from $request->request.
+
+### Login seeded user
+POST {{baseUrl}}/api/v1/login
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+email={{seededEmail}}&password={{seededPassword}}
+
+> {%
+client.global.set("seededToken", response.body.access_token);
+%}
+
+### Get current user
+GET {{baseUrl}}/api/v1/user
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### List users
+GET {{baseUrl}}/api/v1/users
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### Get seeded current workspace
+GET {{baseUrl}}/api/v1/workspace
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+> {%
+client.global.set("seededWorkspaceId", response.body.id);
+%}
+
+### Show seeded workspace by id
+GET {{baseUrl}}/api/v1/workspaces/{{seededWorkspaceId}}
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### List seeded workspace items
+GET {{baseUrl}}/api/v1/workspaces/{{seededWorkspaceId}}/items
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+> {%
+if (response.body.data.length > 0) {
+  client.global.set("seededItemId", response.body.data[0].id);
+}
+%}
+
+### List current user items
+GET {{baseUrl}}/api/v1/items
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### Show seeded item by id
+GET {{baseUrl}}/api/v1/items/{{seededItemId}}
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### Create item in seeded workspace
+POST {{baseUrl}}/api/v1/items
+Authorization: Bearer {{seededToken}}
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+workspace_id={{seededWorkspaceId}}&type=1&title=HTTP Client Note&data[content]=Created from API.http&sort_order=99
+
+> {%
+client.global.set("createdItemId", response.body.id);
+%}
+
+### Update created item
+PATCH {{baseUrl}}/api/v1/items/{{createdItemId}}
+Authorization: Bearer {{seededToken}}
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+title=HTTP Client Note Updated&data[content]=Updated from API.http&sort_order=100
+
+### Delete created item
+DELETE {{baseUrl}}/api/v1/items/{{createdItemId}}
+Authorization: Bearer {{seededToken}}
+X-API-Version: {{apiVersion}}
+
+### Login fresh user without workspace
+POST {{baseUrl}}/api/v1/login
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+email={{freshEmail}}&password={{freshPassword}}
+
+> {%
+client.global.set("freshToken", response.body.access_token);
+%}
+
+### Create workspace for fresh user
+POST {{baseUrl}}/api/v1/workspace
+Authorization: Bearer {{freshToken}}
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+name=Fresh Workspace&settings[theme]=dark&settings[language]=en&settings[timezone]=UTC
+
+> {%
+client.global.set("freshWorkspaceId", response.body.id);
+%}
+
+### Get fresh current workspace
+GET {{baseUrl}}/api/v1/workspace
+Authorization: Bearer {{freshToken}}
+X-API-Version: {{apiVersion}}
+
+### Update fresh current workspace
+PATCH {{baseUrl}}/api/v1/workspace
+Authorization: Bearer {{freshToken}}
+Content-Type: application/x-www-form-urlencoded
+X-API-Version: {{apiVersion}}
+
+name=Fresh Workspace Updated&settings[theme]=light&settings[language]=en&settings[timezone]=Europe/Tbilisi
+
+### Show fresh workspace by id
+GET {{baseUrl}}/api/v1/workspaces/{{freshWorkspaceId}}
+Authorization: Bearer {{freshToken}}
+X-API-Version: {{apiVersion}}

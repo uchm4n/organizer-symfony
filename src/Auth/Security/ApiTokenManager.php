@@ -22,8 +22,8 @@ class ApiTokenManager
     {
         $ttlMinutes ??= self::TOKEN_TTL_MINUTES;
 
-        // Revoke existing tokens
-        foreach ($user->getApiTokens() as $existing) {
+        $existingTokens = $this->em->getRepository(ApiToken::class)->findBy(['user' => $user]);
+        foreach ($existingTokens as $existing) {
             $this->em->remove($existing);
         }
 
