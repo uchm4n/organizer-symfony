@@ -7,8 +7,11 @@ namespace App\Tests\Shared\HttpKernel;
 use App\Item\Message\GetItem;
 use App\Shared\Exception\ResourceNotFoundException;
 use App\Shared\HttpKernel\ExceptionListener;
+use App\Shared\Logging\ExceptionLogger;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\HttpKernel\KernelEvents;
@@ -26,7 +29,9 @@ class ExceptionListenerTest extends TestCase
 
     public function testHandlerFailedExceptionUsesWrappedResourceNotFoundStatus(): void
     {
-        $listener = new ExceptionListener();
+        $listener = new ExceptionListener(
+            new ExceptionLogger(new NullLogger(), new RequestStack()),
+        );
         $request = Request::create('/api/v1/items/123');
         $request->server->set('APP_ENV', 'test');
 

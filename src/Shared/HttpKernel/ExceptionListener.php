@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Shared\HttpKernel;
 
 use App\Shared\Exception\ResourceNotFoundException;
+use App\Shared\Logging\ExceptionLogger;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
@@ -18,6 +19,10 @@ use Symfony\Component\Validator\Exception\ValidationException;
 
 final class ExceptionListener implements EventSubscriberInterface
 {
+    public function __construct(
+        private ExceptionLogger $exceptionLogger,
+    ) {}
+
     public static function getSubscribedEvents(): array
     {
         return [
@@ -81,6 +86,7 @@ final class ExceptionListener implements EventSubscriberInterface
             ),
         };
 
+        $this->exceptionLogger->log($exception, $response->getStatusCode());
         $event->setResponse($response);
     }
 }

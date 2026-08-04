@@ -51,4 +51,14 @@ abstract class IntegrationTestCase extends KernelTestCase
 
         return $user;
     }
+
+    protected function tearDown(): void
+    {
+        if (isset($this->em)) {
+            $this->em->clear();
+            $this->em->getConnection()->close();
+        }
+
+        parent::tearDown();
+    }
 }

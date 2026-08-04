@@ -13,11 +13,10 @@ final class SlimLineFormatter extends LineFormatter
         parent::__construct(
             format: "[%datetime%] %channel%.%level_name%: %message% %context%\n",
             dateFormat: 'Y-m-d H:i:s',
-            inlineOpen: '{',
-            inlineClose: '}',
+            allowInlineLineBreaks: false,
+            ignoreEmptyContextAndExtra: true,
         );
 
-        $this->setBasePath(dirname($this->basePath));
-        $this->ignoreEmptyContextAndExtra();
+        $this->setBasePath(dirname(__DIR__, 3));
     }
 }

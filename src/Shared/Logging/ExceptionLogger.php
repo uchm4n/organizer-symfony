@@ -26,15 +26,16 @@ final class ExceptionLogger
     {
         $level = $this->determineLevel($exception, $status);
         $request = $this->requestStack->getCurrentRequest();
+        $route = $request?->attributes->get('_route') ?? $request?->getPathInfo();
 
         $context = [
             'status'   => $status,
-            'route'    => $request?->attributes->get('_route', $request->getPathInfo()),
+            'route'    => $route,
             'method'   => $request?->getMethod(),
             'url'      => $request?->getUri(),
             'ip'       => $request?->getClientIp(),
             'trace_id' => $request?->attributes->get('trace_id'),
-            'user'     => $request->getUser()?->getId(),
+            'user'     => $request?->getUser(),
         ];
 
         $message = sprintf(
