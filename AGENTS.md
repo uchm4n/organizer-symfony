@@ -68,6 +68,9 @@ php bin/console doctrine:database:create --env=test
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| GET | `/` | Front page (README-style) |
+| GET | `/api/doc` | Swagger UI (OpenAPI docs) |
+| GET | `/api/doc.json` | Raw OpenAPI 3.0 spec |
 | POST | `/api/v1/login` | Login, get bearer token |
 | GET | `/api/v1/user` | Get authenticated user |
 | GET | `/api/v1/users` | List all users |

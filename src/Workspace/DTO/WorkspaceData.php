@@ -5,12 +5,21 @@ declare(strict_types=1);
 namespace App\Workspace\DTO;
 
 use App\Workspace\Entity\Workspace;
+use OpenApi\Attributes as OA;
 
+#[OA\Schema(
+    schema: 'WorkspaceData',
+    description: 'Workspace resource',
+    type: 'object',
+)]
 final readonly class WorkspaceData
 {
     public function __construct(
+        #[OA\Property(property: 'id', type: 'integer', example: 1)]
         public int $id,
+        #[OA\Property(property: 'name', type: 'string', example: 'Personal')]
         public string $name,
+        #[OA\Property(property: 'settings', type: 'object', nullable: true, description: 'Workspace settings')]
         public ?array $settings,
     ) {}
 

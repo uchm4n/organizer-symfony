@@ -1,0 +1,35 @@
+nelmio_api_doc:
+    documentation:
+        info:
+            title: Organizer API
+            description: |
+                JSON-first personal workspace API supporting notes, todos, spreadsheets,
+                tax declarations, calendar/events, and a document vault.
+
+                ## Authentication
+
+                Obtain a bearer token via `POST /api/v1/login`, then send it on every
+                request as `Authorization: Bearer {token}`.
+
+                ## Headers
+
+                - `X-API-Version` (optional) — API version to use, currently `1` (default: latest)
+                - `X-Trace-Id` (optional) — request trace ID, auto-generated if not provided
+                - `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` — rate limit info
+
+                ## Errors
+
+                Errors follow RFC 9457 Problem+JSON (`application/problem+json`).
+                See the `ProblemResponse` schema.
+            version: 1.0.0
+        components:
+            securitySchemes:
+                Bearer:
+                    type: http
+                    scheme: bearer
+                    bearerFormat: Bearer
+        security:
+            - Bearer: []
+    areas:
+        path_patterns:
+            - ^/api/v1
