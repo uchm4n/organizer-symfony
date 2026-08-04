@@ -13,12 +13,13 @@ Symfony 8.1 port of the Laravel Organizer app — a JSON-first personal workspac
 
 ## Architecture
 
-- **Command Bus:** Symfony Messenger (not plain service classes)
+- **Command Bus (CQS):** Symfony Messenger with two buses — `command.bus` (writes; `validation` + `doctrine_transaction` middleware) and `query.bus` (reads; `validation` only). No read models — query handlers return Doctrine entities directly, controllers convert to DTOs. See `config/packages/messenger.yaml`
 - **Authentication:** SecurityBundle with manual token table (`ApiToken` entity)
 - **Database:** Doctrine ORM with SQLite (dev/test)
 - **Error Format:** RFC 9457 Problem+JSON via `ProblemRenderer`
 - **API Versioning:** Header-based via `X-API-Version` (currently `v1`)
 - **Logging:** Monolog with `SlimLineFormatter`
+- **API Docs:** NelmioApiDocBundle — OpenAPI 3.0 spec generated from `OpenApi\Attributes` (see "API Docs Conventions" below)
 
 ## Domain Structure
 
@@ -43,6 +44,9 @@ src/
 | `src/Shared/EventSubscriber/TraceIdSubscriber.php` | Request trace IDs |
 | `config/packages/messenger.yaml` | Command bus configuration |
 | `config/packages/security.yaml` | Authentication configuration |
+| `config/packages/nelmio_api_doc.yaml` | OpenAPI docs config (info, security scheme, areas) |
+| `config/routes/nelmio_api_doc.yaml` | `/api/doc` + `/api/doc.json` routes |
+| `src/Controller/HomeController.php` | Front page (`/`, README-style HTML) |
 
 ## Running Tests
 
@@ -84,6 +88,18 @@ php bin/console doctrine:database:create --env=test
 | POST | `/api/v1/items` | Create item |
 | PATCH | `/api/v1/items/{id}` | Update item |
 | DELETE | `/api/v1/items/{id}` | Delete item |
+
+## API Docs Conventions
+
+The OpenAPI spec is generated from PHP attributes — keep docs in sync when changing endpoints:
+
+- Every endpoint carries `#[OA\Tag]` (Auth/User/Workspace/Item) + `#[OA\Response]` entries. Success responses reference models; errors (401/403/404/422/429) reference `ProblemResponse`
+- Schemas are registered via Nelmio's model registry: `new OA\JsonContent(ref: new Model(type: SomeData::class))` — plain `#/components/schemas/...` string refs do **not** resolve (Nelmio does not scan classes)
+- DTO classes carry class-level `#[OA\Schema(schema: 'X', ...)]` + per-property `#[OA\Property(property: 'snake_case', ...)]` — the `property` key must mirror the actual JSON keys from `toArray()` (Nelmio defaults to camelCase)
+- Write endpoints document `#[OA\RequestBody]` inline; path params via `#[OA\Parameter]`
+- Invokable controllers: attributes at class level. Multi-action controllers (e.g. `WorkspaceController`): attributes on each method (class-level would leak across operations)
+- Bearer security is global (defined in `nelmio_api_doc.yaml` under `components.securitySchemes`); `/api/doc` is `PUBLIC_ACCESS` in `security.yaml`
+- Verify with: `php bin/console nelmio:apidoc:dump --format=json`
 
 ## Conventions
 

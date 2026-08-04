@@ -2,6 +2,31 @@
 
 A JSON-first personal workspace API. Supports notes, todos, spreadsheets, tax declarations, calendar/events, and a document vault.
 
+## Architecture
+
+The application is organized into domain modules (`Auth`, `User`, `Workspace`, `Item`, plus `Shared` for cross-cutting concerns), each following the same flow:
+
+```
+HTTP request → Controller → Message (command.bus / query.bus) → MessageHandler → Entity (Doctrine) → DTO → JSON response
+```
+
+### Command bus (CQS — not full CQRS)
+
+All operations go through Symfony Messenger as **Message + MessageHandler** pairs, split into two buses:
+
+- **`command.bus`** — write operations (`LoginUser`, `CreateItem`, `UpdateWorkspace`, ...). Middleware: `validation`, `doctrine_transaction`.
+- **`query.bus`** — read operations (`GetUser`, `GetItems`, `GetWorkspaceItems`, ...). Middleware: `validation`.
+
+This is Command-Query Separation over a command bus: reads and writes are explicitly separated at the messaging layer, but there are **no dedicated read models** — query handlers return the same Doctrine entities, and the controllers convert them to response DTOs. Single storage, no projections, no eventual consistency. Full CQRS would add complexity without benefit for a single-user JSON API.
+
+### Key decisions
+
+- **Authentication:** SecurityBundle with a custom bearer-token authenticator backed by the `ApiToken` entity (SHA-256 hashed, 2-day TTL, revoked on re-login)
+- **Error handling:** RFC 9457 Problem+JSON (`application/problem+json`) via `ProblemRenderer` + a global `ExceptionListener`
+- **API versioning:** Header-based (`X-API-Version`, currently `1`); trace IDs via `X-Trace-Id`
+- **Persistence:** Doctrine ORM directly in handlers (no repository layer)
+- **API docs:** NelmioApiDocBundle — OpenAPI 3.0 spec auto-generated from `OpenApi\Attributes` on controllers and DTOs (see `/api/doc`)
+
 ## Tech Stack
 
 - PHP 8.5
